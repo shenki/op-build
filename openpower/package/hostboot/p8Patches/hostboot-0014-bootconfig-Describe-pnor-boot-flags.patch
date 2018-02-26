@@ -1,0 +1,104 @@
+From cdcaabc41cb7ec15b22409b3e09617a873c1c95e Mon Sep 17 00:00:00 2001
+From: Joel Stanley <joel.stanley@au1.ibm.com>
+Date: Tue, 27 Feb 2018 13:44:14 +1030
+Subject: [PATCH] bootconfig: Describe pnor boot flags
+
+The reserved boot flag is now used by a BMC to signal to the host
+firmware that it supports the mbox protocol[1].
+
+Currently this has no affect on Hostboot, but in the future it will be
+used by skiboot.  In the future hostboot could chose to use the mbox
+protocol to read and write PNOR.
+
+[1] github.com/openbmc/mboxbridge/blob/master/Documentation/mbox_protocol.md
+
+Change-Id: I51bc7878eabc975954371ada838d0a348b12ef9d
+Signed-off-by: Joel Stanley <joel.stanley@au1.ibm.com>
+---
+ src/usr/initservice/bootconfig/bootconfig_ast2400.C | 20 ++++++++++++++++++++
+ src/usr/initservice/bootconfig/bootconfig_ast2400.H | 17 ++++++++++++++++-
+ 2 files changed, 36 insertions(+), 1 deletion(-)
+
+diff --git a/src/usr/initservice/bootconfig/bootconfig_ast2400.C b/src/usr/initservice/bootconfig/bootconfig_ast2400.C
+index d0d1a3e746b2..43696088b0d7 100644
+--- a/src/usr/initservice/bootconfig/bootconfig_ast2400.C
++++ b/src/usr/initservice/bootconfig/bootconfig_ast2400.C
+@@ -171,6 +171,24 @@ void AST2400BootConfig::configureBootOptions(uint8_t i_bootOptions )
+             errlCommit(errl,INITSVC_COMP_ID);
+         }
+     }
++};
++
++// configurePnorDriver()
++// ----------------------------------------------------------------------------
++void AST2400BootConfig::configurePnorDriver( uint8_t i_driver )
++{
++    switch (i_driver) {
++    case MBOX:
++        TRACFCOMP(g_bc_trace,
++                "configurePnorDriver() bmc supports mbox protocol");
++	/* Fall through - no hostboot support for mbox */
++        TRACFCOMP(g_bc_trace,
++                "configurePnorDriver() hb does not support mbox protocol");
++    case SFC:
++        TRACFCOMP(g_bc_trace,
++                "configurePnorDriver() using sfc driver");
++	break;
++    }
+ }
+ 
+ // ----------------------------------------------------------------------------
+@@ -250,6 +268,8 @@ void AST2400BootConfig::processBootFlagsV1( uint8_t i_flags )
+ {
+     configureBootMode( i_flags & BOOT_MODE_FLAGS );
+ 
++    configurePnorDriver( i_flags & PNOR_DRIVER_FLAGS );
++
+     configureBootOptions( i_flags & BOOT_OPTIONS_FLAGS );
+ 
+     configureHbLogLevel( i_flags & LOG_LEVEL_FLAGS );
+diff --git a/src/usr/initservice/bootconfig/bootconfig_ast2400.H b/src/usr/initservice/bootconfig/bootconfig_ast2400.H
+index cbe341e2b137..7cf96e095fcc 100644
+--- a/src/usr/initservice/bootconfig/bootconfig_ast2400.H
++++ b/src/usr/initservice/bootconfig/bootconfig_ast2400.H
+@@ -75,7 +75,7 @@ class AST2400BootConfig : public BootConfig
+     enum bootFlagMask_t
+     {
+         LOG_LEVEL_FLAGS     = 0x07,
+-        RESERVED_FLAGS      = 0x08,
++        PNOR_DRIVER_FLAGS   = 0x08,
+         BOOT_OPTIONS_FLAGS  = 0x30,
+         BOOT_MODE_FLAGS     = 0xC0,
+     };
+@@ -88,6 +88,13 @@ class AST2400BootConfig : public BootConfig
+         ISTEP_MODE         = 0x80,
+     };
+ 
++    // Masks to select pnor driver from config register
++    enum pnorDriver
++    {
++        SFC                = 0x00,
++        MBOX               = 0x08,
++    };
++
+     // Masks to test boot options flags from config register
+     enum bootOptionsFlags
+     {
+@@ -179,6 +186,14 @@ public:
+      */
+     void configureBootMode( uint8_t i_mode );
+ 
++    /**
++     * @brief Process the pnor driver mode from the boot flags register.
++     *
++     * @param[i] i_driver - pnor driver as set in the boot flags reg.
++     *
++     */
++    void configurePnorDriver( uint8_t i_driver );
++
+     /**
+      * @brief Process boot options from boot flags register
+      *
+-- 
+2.15.1
+
