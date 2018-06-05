@@ -1,7 +1,7 @@
-From 6f008e0bfdfbc9256f18ea0939dfc11d23348675 Mon Sep 17 00:00:00 2001
+From 09615370606dedb9ed2b170e28d7be22f65ae1b5 Mon Sep 17 00:00:00 2001
 From: Stewart Smith <stewart@linux.vnet.ibm.com>
-Date: Thu, 2 Mar 2017 16:15:25 +1100
-Subject: [PATCH] Disable warnings that crop up a lot with GCC6
+Date: Mon, 4 Jun 2018 20:18:46 +0930
+Subject: [PATCH] Disable warnings that crop up a lot with GCC6 and GCC7
 
 NOTE: THIS IS A TERRIBLE IDEA
 
@@ -9,12 +9,13 @@ Instead, Hostboot developers should go and fix their code.
 
 Change-Id: I3e1da9f61ff442e49f143f51ccfc3c7c018beb1f
 Signed-off-by: Stewart Smith <stewart@linux.vnet.ibm.com>
+Signed-off-by: Joel Stanley <joel.stanley@au1.ibm.com>
 ---
- src/build/mkrules/cflags.env.mk | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ src/build/mkrules/cflags.env.mk | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
 diff --git a/src/build/mkrules/cflags.env.mk b/src/build/mkrules/cflags.env.mk
-index 6bb900288388..428de9326400 100644
+index 6bb900288388..705a6c51ff75 100644
 --- a/src/build/mkrules/cflags.env.mk
 +++ b/src/build/mkrules/cflags.env.mk
 @@ -5,7 +5,7 @@
@@ -22,18 +23,19 @@ index 6bb900288388..428de9326400 100644
  # OpenPOWER HostBoot Project
  #
 -# Contributors Listed Below - COPYRIGHT 2013,2016
-+# Contributors Listed Below - COPYRIGHT 2013,2017
++# Contributors Listed Below - COPYRIGHT 2013,2018
  # [+] Google Inc.
  # [+] International Business Machines Corp.
  #
-@@ -40,11 +40,13 @@ endif
+@@ -40,11 +40,14 @@ endif
  
  COMMONFLAGS += $(OPT_LEVEL) -nostdlib
  CFLAGS += $(COMMONFLAGS) -mcpu=power7 -nostdinc -g -mno-vsx -mno-altivec\
 -          -Wall -Werror -mtraceback=no -pipe -mabi=elfv1 \
-+          -Wall -mtraceback=no -pipe -mabi=elfv1 \
-+          -Wno-error=sizeof-array-argument \
-+          -Wno-error=unused-function \
++	  -Wall -mtraceback=no -pipe -mabi=elfv1 \
++	  -Wno-error=sizeof-array-argument \
++	  -Wno-unused-function \
++	  -Wno-int-in-bool-context \
  	  -ffunction-sections -fdata-sections -ffreestanding -mbig-endian
  ASMFLAGS += $(COMMONFLAGS) -mcpu=power7 -mbig-endian -ffreestanding -mabi=elfv1
  CXXFLAGS += $(CFLAGS) -nostdinc++ -fno-rtti -fno-exceptions -Wall \
@@ -43,5 +45,5 @@ index 6bb900288388..428de9326400 100644
  
  INCFLAGS = $(addprefix -I, $(INCDIR) )
 -- 
-2.9.4
+2.17.0
 
