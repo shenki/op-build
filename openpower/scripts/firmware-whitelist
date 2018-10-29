@@ -10,6 +10,7 @@ whitelist=(     'acenic/'
                 'cxgb4/t4fw-1.16.63.0.bin'
                 'cxgb4/t4fw.bin'
                 'cxgb3/'
+                'amdgpu/fiji_{ce,mc,me,mec2,mec,pfp,rlc,sdma1,sdma,smc,uvd,vce}.bin'
                 'ql2500_fw.bin')
 
 if [ -z "${TARGET_DIR}" ] ; then
