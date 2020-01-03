@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-OCC_P8_VERSION ?= 28b9f6edc698d19ccb721beaf8de8b786c11f990
-OCC_P8_SITE ?= $(call github,open-power,occ,$(OCC_P8_VERSION))
+OCC_P8_VERSION ?= 55ff71eac0ccaf10bd2860d15bb80f105e73e7dc
+OCC_P8_SITE ?= $(call github,shenki,occ,$(OCC_P8_VERSION))
 OCC_P8_LICENSE = Apache-2.0
 
 OCC_P8_LICENSE_FILES = src/LICENSE
